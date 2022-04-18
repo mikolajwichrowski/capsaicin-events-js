@@ -1,5 +1,5 @@
 import { Controller, Get, Body, Post, Param, HttpException, HttpStatus } from '@nestjs/common';
-import { EventService } from 'src/services/event.service';
+import { EventService } from './event.service';
 import { EventWithCreator, CreateEventBody } from "src/types";
 
 @Controller("events")

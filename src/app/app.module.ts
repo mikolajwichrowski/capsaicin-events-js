@@ -1,12 +1,16 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { AppController } from './controllers/app.controller';
-import { AppService } from './services/app.service';
-import { UserService } from './services/user.service';
-import { AuthController } from './controllers/auth.controller';
-import { AuthMiddleware } from './middleware/auth.middleware';
-import { UserController } from './controllers/user.controller';
-import { EventService } from './services/event.service';
-import { EventController } from './controllers/event.controller';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+// TODO: Make a module for each app
+import { UserService } from '../user/user.service';
+import { UserController } from '../user/user.controller';
+
+import { AuthController } from '../auth/auth.controller';
+import { AuthMiddleware } from '../auth/auth.middleware';
+
+import { EventService } from '../event/event.service';
+import { EventController } from '../event/event.controller';
 
 @Module({
   imports: [],
