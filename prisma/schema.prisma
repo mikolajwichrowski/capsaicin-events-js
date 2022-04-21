@@ -26,6 +26,7 @@ model Event {
   creatorId   Int
   creator     User       @relation(fields: [creatorId], references: [id])
   attendees   Attendee[]
+  File        File[]
 }
 
 model Attendee {
@@ -38,3 +39,9 @@ model Attendee {
   @@unique([userId, eventId], name: "userOncePerEvent")
 }
 
+model File {
+  id           Int    @id @default(autoincrement())
+  fileLocation String
+  eventId      Int
+  event        Event  @relation(fields: [eventId], references: [id])
+}

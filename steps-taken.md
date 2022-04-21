@@ -10,6 +10,18 @@
 ---
 # 1. Events
 1. Create event models in prisma
-2. Create event service and controller
-
+2. Create event service and module
+3. Make GET/POST routes
+---
+# 2. Attendees
+1. Create attendees model and service
+2. Put attendees service in event controller
+3. Make attendees detail route on event controller
+4. Make register attendees on event controller
+---
+# 3 Files
+1. Create file models in prisma
+1. Create file service
+4. Make files detail route on event controller
+3. Add file upload techinique to upload endpoint https://docs.nestjs.com/techniques/file-upload on event controller
 

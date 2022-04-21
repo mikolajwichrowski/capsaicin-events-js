@@ -1,13 +1,19 @@
-import { Controller, Get, Body, Post, Param, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile } from '@nestjs/common';
+
+import { EventWithCreator, AttendeeWithUser } from "src/../prisma/types";
+import { CreateEventBody, FileResponseObject, RegisterAttendeeBody } from "src/types";
+
 import { EventService } from './event.service';
-import { EventWithCreator, CreateEventBody, RegisterAttendeeBody, AttendeeWithUser } from "../../prisma/types";
+import { FileService } from 'src/file/file.service';
 import { AttendeeService } from 'src/attendee/attendee.service';
+import { FileInterceptor } from '@nestjs/platform-express/multer';
 
 @Controller("events")
 export class EventController {
   constructor(
     private readonly eventService: EventService, 
-    private readonly attendeeService: AttendeeService
+    private readonly attendeeService: AttendeeService,
+    private readonly fileService: FileService
   ) { }
 
   @Get("")
@@ -113,15 +119,27 @@ export class EventController {
   @Get(":id/files")
   async getFiles(
     @Param('id') id: number
-  ): Promise<void> {
-
+  ): Promise<FileResponseObject[]> {
+    const allFileObjects = await this.fileService.getFilesByEventId(id)
+    return allFileObjects.map(fullFileObject => ({
+      id: fullFileObject.id,
+      event: fullFileObject.eventId,
+      fileLocation: fullFileObject.fileLocation
+    }))
   }
 
   @Post(":id/upload")
+  @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Param('id') id: number
-  ): Promise<void> {
-
+    @Param('id') id: number,
+    @UploadedFile() file: Express.Multer.File
+  ): Promise<FileResponseObject> {
+    const newFileObject = await this.fileService.createFile(id, file.destination)
+    return {
+      id: newFileObject.id,
+      event: newFileObject.eventId,
+      fileLocation: newFileObject.fileLocation
+    }
   }
 
   @Get(":id/reactions")

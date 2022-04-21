@@ -1,14 +1,16 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
-import { UserService } from '../user/user.service';
-import { AuthMiddleware } from '../auth/auth.middleware';
-import { EventService } from './event.service';
+
+import { AuthMiddleware } from 'src/auth/auth.middleware';
 import { EventController } from './event.controller';
-import { AttendeeService } from '../attendee/attendee.service';
+
+import { AttendeeService } from 'src/attendee/attendee.service';
+import { EventService } from './event.service';
+import { FileService } from 'src/file/file.service';
 
 @Module({
   imports: [],
   controllers: [EventController],
-  providers: [UserService, EventService, AttendeeService],
+  providers: [EventService, AttendeeService, FileService],
 })
 export class EventModule {
   configure(consumer: MiddlewareConsumer) {
