@@ -45,6 +45,20 @@ export class EventController {
     };
   }
 
+  @Get(":id/attendees")
+  async getAttendees(
+    @Param('id') id: string
+  ): Promise<void> {
+
+  }
+
+  @Get(":id/register")
+  async createAttendee(
+    @Param('id') id: string
+  ): Promise<void> {
+
+  }
+
   @Post()
   async create(
     @Body() body: CreateEventBody
