@@ -8,7 +8,7 @@ import { UserController } from './user.controller';
   controllers: [UserController],
   providers: [UserService],
 })
-export class AppModule {
+export class UserModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)

@@ -9,7 +9,7 @@ import { EventController } from './event.controller';
   controllers: [EventController],
   providers: [UserService, EventService],
 })
-export class AppModule {
+export class EventModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(AuthMiddleware)

@@ -1,6 +1,6 @@
 import { Controller, Get, Body, Post, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { EventService } from './event.service';
-import { EventWithCreator, CreateEventBody } from "src/types";
+import { EventWithCreator, CreateEventBody } from "../../prisma/types";
 
 @Controller("events")
 export class EventController {
@@ -45,20 +45,6 @@ export class EventController {
     };
   }
 
-  @Get(":id/attendees")
-  async getAttendees(
-    @Param('id') id: string
-  ): Promise<void> {
-
-  }
-
-  @Get(":id/register")
-  async createAttendee(
-    @Param('id') id: string
-  ): Promise<void> {
-
-  }
-
   @Post()
   async create(
     @Body() body: CreateEventBody
@@ -86,5 +72,19 @@ export class EventController {
         username: newEvent.creator.username
       }
     };
+  }
+
+  @Get(":id/attendees")
+  async getAttendees(
+    @Param('id') id: string
+  ): Promise<void> {
+
+  }
+
+  @Get(":id/register")
+  async createAttendee(
+    @Param('id') id: string
+  ): Promise<void> {
+
   }
 }
