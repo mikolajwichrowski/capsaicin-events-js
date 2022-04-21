@@ -1,10 +1,14 @@
 import { Controller, Get, Body, Post, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { EventService } from './event.service';
-import { EventWithCreator, CreateEventBody } from "../../prisma/types";
+import { EventWithCreator, CreateEventBody, RegisterAttendeeBody, AttendeeWithUser } from "../../prisma/types";
+import { AttendeeService } from 'src/attendee/attendee.service';
 
 @Controller("events")
 export class EventController {
-  constructor(private readonly eventService: EventService) { }
+  constructor(
+    private readonly eventService: EventService, 
+    private readonly attendeeService: AttendeeService
+  ) { }
 
   @Get("")
   async list(): Promise<EventWithCreator[]> {
@@ -24,10 +28,9 @@ export class EventController {
 
   @Get(":id")
   async get(
-    @Param('id') id: string
+    @Param('id') id: number
   ): Promise<EventWithCreator> {
-    const idInteger = parseInt(id) || 0
-    const fullEventObject = await this.eventService.getEventById(idInteger)
+    const fullEventObject = await this.eventService.getEventById(id)
 
     if (!fullEventObject) {
       throw new HttpException('Not found', HttpStatus.NOT_FOUND);
@@ -76,14 +79,61 @@ export class EventController {
 
   @Get(":id/attendees")
   async getAttendees(
-    @Param('id') id: string
+    @Param('id') id: number
+  ): Promise<AttendeeWithUser[]> {
+    const allAttendeeObjects = await this.attendeeService.getAttendeesByEventId(id)
+    return allAttendeeObjects.map(fullAttendeeObject => ({
+      id: fullAttendeeObject.id,
+      user: {
+        id: fullAttendeeObject.user.id,
+        username: fullAttendeeObject.user.username
+      },
+    }))
+  }
+
+  @Post(":id/register")
+  async createAttendee(
+    @Param('id') id: number,
+    @Body() body: RegisterAttendeeBody
+  ): Promise<AttendeeWithUser> {
+    if (!body.hasOwnProperty("user")) {
+      throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
+    }
+
+    const newAttendeeObject = await this.attendeeService.createAttendee(id, body.user)
+    return {
+      id: newAttendeeObject.id,
+      user: {
+        id: newAttendeeObject.user.id,
+        username: newAttendeeObject.user.username
+      },
+    }
+  }
+
+  @Get(":id/files")
+  async getFiles(
+    @Param('id') id: number
   ): Promise<void> {
 
   }
 
-  @Get(":id/register")
-  async createAttendee(
-    @Param('id') id: string
+  @Post(":id/upload")
+  async uploadFile(
+    @Param('id') id: number
+  ): Promise<void> {
+
+  }
+
+  @Get(":id/reactions")
+  async getReactions(
+    @Param('id') id: number
+  ): Promise<void> {
+
+  }
+
+  @Post(":id/react")
+  async makeReaction(
+    @Param('id') id: number
   ): Promise<void> {
 
   }

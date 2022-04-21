@@ -11,17 +11,30 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  username      String    @unique
-  password      String
-  events        Event[]
+  id       Int        @id @default(autoincrement())
+  username String     @unique
+  password String
+  events   Event[]
+  attender Attendee[]
 }
 
 model Event {
-  id            Int       @id @default(autoincrement())
-  description   String
-  picture       String
-  location      String
-  creatorId     Int
-  creator       User      @relation(fields: [creatorId], references: [id])
+  id          Int        @id @default(autoincrement())
+  description String
+  picture     String
+  location    String
+  creatorId   Int
+  creator     User       @relation(fields: [creatorId], references: [id])
+  attendees   Attendee[]
 }
+
+model Attendee {
+  id      Int   @id @default(autoincrement())
+  userId  Int
+  user    User  @relation(fields: [userId], references: [id])
+  eventId Int
+  event   Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId], name: "userOncePerEvent")
+}
+

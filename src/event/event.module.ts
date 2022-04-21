@@ -3,11 +3,12 @@ import { UserService } from '../user/user.service';
 import { AuthMiddleware } from '../auth/auth.middleware';
 import { EventService } from './event.service';
 import { EventController } from './event.controller';
+import { AttendeeService } from '../attendee/attendee.service';
 
 @Module({
   imports: [],
   controllers: [EventController],
-  providers: [UserService, EventService],
+  providers: [UserService, EventService, AttendeeService],
 })
 export class EventModule {
   configure(consumer: MiddlewareConsumer) {
