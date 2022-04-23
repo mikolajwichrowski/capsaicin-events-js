@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile, Request } from '@nestjs/common';
 
 import { EventWithCreator, AttendeeWithUser } from "src/../prisma/types";
 import { CreateEventBody, FileResponseObject, ReactionResponseObject, RegisterAttendeeBody } from "src/types";
@@ -59,21 +59,24 @@ export class EventController {
 
   @Post()
   async create(
-    @Body() body: CreateEventBody
+    @Body() body: CreateEventBody,
+    @Request() req,
   ): Promise<EventWithCreator> {
     const requiredKeys = [
       "description",
       "picture",
       "location",
-      "creator"
     ]
+
+    const userIdString = req.cookies["user_id"]
+    const userId = parseInt(userIdString) || 0
 
     const missingKeysInBody = requiredKeys.find((key) => !body.hasOwnProperty(key))
     if (missingKeysInBody) {
       throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
     }
 
-    const newEvent = await this.eventService.createEvent(body.description, body.picture, body.location, body.creator)
+    const newEvent = await this.eventService.createEvent(body.description, body.picture, body.location, userId)
     return {
       id: newEvent.id,
       description: newEvent.description,
@@ -167,19 +170,9 @@ export class EventController {
   @Post(":id/react")
   async makeReaction(
     @Param('id') id: number,
-    @Body() body: any
+    @Body() body: any,
+    @Request() req
   ): Promise<ReactionResponseObject> {
-    const requiredKeys = [
-      "user",
-      "type",
-    ]
-
-    const missingKeysInBody = requiredKeys.find((key) => !body.hasOwnProperty(key))
-    
-    if (missingKeysInBody) {
-      throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
-    }
-
     if(["COMMENT", "AVAILIBILITY"].includes(body.type)) {
       throw new HttpException("Bad request, type must be one of two [\"COMMENT\", \"AVAILIBILITY\"]", HttpStatus.BAD_REQUEST)
     }
@@ -189,8 +182,11 @@ export class EventController {
       throw new HttpException("Bad request, either pass a `message` or `availibilityDate`", HttpStatus.BAD_REQUEST)
     }
 
+    const userIdString = req.cookies["user_id"]
+    const userId = parseInt(userIdString) || 0
+
     const fullReactionObject = await this.reactionService.createReaction(
-      body.user,
+      userId,
       id,
       body.type,
       body.message,
