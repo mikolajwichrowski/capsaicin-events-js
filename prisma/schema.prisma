@@ -16,6 +16,7 @@ model User {
   password String
   events   Event[]
   attender Attendee[]
+  reactions Reaction[]
 }
 
 model Event {
@@ -27,6 +28,7 @@ model Event {
   creator     User       @relation(fields: [creatorId], references: [id])
   attendees   Attendee[]
   File        File[]
+  Reaction    Reaction[]
 }
 
 model Attendee {
@@ -44,4 +46,16 @@ model File {
   fileLocation String
   eventId      Int
   event        Event  @relation(fields: [eventId], references: [id])
+}
+
+model Reaction {
+  id                Int       @id @default(autoincrement())
+  userId            Int
+  user              User      @relation(fields: [userId], references: [id])
+  eventId           Int
+  event             Event     @relation(fields: [eventId], references: [id])
+  type              String
+  message           String?
+  availibilityDate DateTime?
+  createdAt        DateTime
 }

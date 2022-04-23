@@ -6,11 +6,12 @@ import { EventController } from './event.controller';
 import { AttendeeService } from 'src/attendee/attendee.service';
 import { EventService } from './event.service';
 import { FileService } from 'src/file/file.service';
+import { ReactionService } from 'src/reaction/reaction.service';
 
 @Module({
   imports: [],
   controllers: [EventController],
-  providers: [EventService, AttendeeService, FileService],
+  providers: [EventService, AttendeeService, FileService, ReactionService],
 })
 export class EventModule {
   configure(consumer: MiddlewareConsumer) {
