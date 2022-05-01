@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'
-import { EventWithCreator } from 'src/types';
+import { EventWithCreator } from '../../prisma/types';
 
 const prisma = new PrismaClient()
 
