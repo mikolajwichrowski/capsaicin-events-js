@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Res, Param, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Param, HttpException, HttpStatus } from '@nestjs/common';
 import { User } from "@prisma/client"
 import { UserService } from './user.service';
 

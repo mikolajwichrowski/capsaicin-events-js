@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client'
-import { AttendeeWithUser } from '../../prisma/types';
+import { AttendeeWithUser } from 'src/../prisma/types';
 
 const prisma = new PrismaClient()
 

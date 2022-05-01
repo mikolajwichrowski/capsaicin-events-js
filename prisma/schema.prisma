@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -16,6 +13,7 @@ model User {
   password String
   events   Event[]
   attender Attendee[]
+  reactions Reaction[]
 }
 
 model Event {
@@ -26,6 +24,8 @@ model Event {
   creatorId   Int
   creator     User       @relation(fields: [creatorId], references: [id])
   attendees   Attendee[]
+  File        File[]
+  Reaction    Reaction[]
 }
 
 model Attendee {
@@ -38,3 +38,21 @@ model Attendee {
   @@unique([userId, eventId], name: "userOncePerEvent")
 }
 
+model File {
+  id           Int    @id @default(autoincrement())
+  fileLocation String
+  eventId      Int
+  event        Event  @relation(fields: [eventId], references: [id])
+}
+
+model Reaction {
+  id                Int       @id @default(autoincrement())
+  userId            Int
+  user              User      @relation(fields: [userId], references: [id])
+  eventId           Int
+  event             Event     @relation(fields: [eventId], references: [id])
+  type              String
+  message           String?
+  availibilityDate DateTime?
+  createdAt        DateTime
+}
