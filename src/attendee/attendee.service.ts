@@ -12,8 +12,8 @@ export class AttendeeService {
   ): Promise<AttendeeWithUser> {
     return await prisma.attendee.create({
       data: {
-        userId,
-        eventId
+        user: { connect: { id: userId } },
+        event: { connect: { id: eventId } }
       },
       include: {
         user: true,

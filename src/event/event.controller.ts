@@ -1,16 +1,18 @@
-import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile, Request } from '@nestjs/common';
+import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile, Request, ParseIntPipe } from '@nestjs/common';
 
-import { EventWithCreator, AttendeeWithUser } from "src/../prisma/types";
+import { EventWithCreator, AttendeeWithUser } from "../../prisma/types";
 import { CreateEventBody, FileResponseObject, ReactionResponseObject, RegisterAttendeeBody } from "src/types";
 
 import { EventService } from './event.service';
 import { FileService } from 'src/file/file.service';
 import { ReactionService } from 'src/reaction/reaction.service';
 import { AttendeeService } from 'src/attendee/attendee.service';
-
+import { ValidationPipe } from 'src/validation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
+import path, { extname } from 'path';
+import { diskStorage } from 'multer';
 
-@Controller("events")
+@Controller("event")
 export class EventController {
   constructor(
     private readonly eventService: EventService,
@@ -37,7 +39,7 @@ export class EventController {
 
   @Get(":id")
   async get(
-    @Param('id') id: number
+    @Param('id', ParseIntPipe) id: number
   ): Promise<EventWithCreator> {
     const fullEventObject = await this.eventService.getEventById(id)
 
@@ -59,7 +61,7 @@ export class EventController {
 
   @Post()
   async create(
-    @Body() body: CreateEventBody,
+    @Body(new ValidationPipe()) body: CreateEventBody,
     @Request() req,
   ): Promise<EventWithCreator> {
     const requiredKeys = [
@@ -71,9 +73,9 @@ export class EventController {
     const userIdString = req.cookies["user_id"]
     const userId = parseInt(userIdString) || 0
 
-    const missingKeysInBody = requiredKeys.find((key) => !body.hasOwnProperty(key))
-    if (missingKeysInBody) {
-      throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
+    const missingKeysInBody = requiredKeys.filter((key) => !body.hasOwnProperty(key))
+    if (missingKeysInBody.length > 0) {
+      throw new HttpException(`Bad request, missing ${missingKeysInBody.join(', ')}`, HttpStatus.BAD_REQUEST)
     }
 
     const newEvent = await this.eventService.createEvent(body.description, body.picture, body.location, userId)
@@ -91,7 +93,7 @@ export class EventController {
 
   @Get(":id/attendees")
   async getAttendees(
-    @Param('id') id: number
+    @Param('id', ParseIntPipe) id: number
   ): Promise<AttendeeWithUser[]> {
     const allAttendeeObjects = await this.attendeeService.getAttendeesByEventId(id)
     return allAttendeeObjects.map(fullAttendeeObject => ({
@@ -105,8 +107,8 @@ export class EventController {
 
   @Post(":id/register")
   async createAttendee(
-    @Param('id') id: number,
-    @Body() body: RegisterAttendeeBody
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) body: RegisterAttendeeBody
   ): Promise<AttendeeWithUser> {
     if (!body.hasOwnProperty("user")) {
       throw new HttpException("Bad request", HttpStatus.BAD_REQUEST)
@@ -124,7 +126,7 @@ export class EventController {
 
   @Get(":id/files")
   async getFiles(
-    @Param('id') id: number
+    @Param('id', ParseIntPipe) id: number
   ): Promise<FileResponseObject[]> {
     const allFileObjects = await this.fileService.getFilesByEventId(id)
     return allFileObjects.map(fullFileObject => ({
@@ -135,12 +137,20 @@ export class EventController {
   }
 
   @Post(":id/upload")
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/',
+        filename: (req, file, cb) => cb(null, `${file.originalname}${extname(file.originalname)}`)
+      }),
+    }),
+  )
   async uploadFile(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File
   ): Promise<FileResponseObject> {
-    const newFileObject = await this.fileService.createFile(id, file.destination)
+    const fileLocation = `/uploads/${file.filename}`
+    const newFileObject = await this.fileService.createFile(id, fileLocation)
     return {
       id: newFileObject.id,
       event: newFileObject.eventId,
@@ -150,7 +160,7 @@ export class EventController {
 
   @Get(":id/reactions")
   async getReactions(
-    @Param('id') id: number
+    @Param('id', ParseIntPipe) id: number
   ): Promise<ReactionResponseObject[]> {
     const allReactionObjects = await this.reactionService.getReactionsByEvent(id)
     return allReactionObjects.map(fullReactionObject => ({
@@ -169,11 +179,11 @@ export class EventController {
 
   @Post(":id/react")
   async makeReaction(
-    @Param('id') id: number,
-    @Body() body: any,
+    @Param('id', ParseIntPipe) id: number,
+    @Body(new ValidationPipe()) body: any,
     @Request() req
   ): Promise<ReactionResponseObject> {
-    if (["COMMENT", "AVAILIBILITY"].includes(body.type)) {
+    if (!["COMMENT", "AVAILIBILITY"].includes(body.type)) {
       throw new HttpException("Bad request, type must be one of two [\"COMMENT\", \"AVAILIBILITY\"]", HttpStatus.BAD_REQUEST)
     }
 

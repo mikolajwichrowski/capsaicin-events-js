@@ -25,7 +25,7 @@ export class AuthController {
   async authenticate(
     @Body() body: Partial<User>,
     @Res({ passthrough: true }) res
-  ): Promise<string> {
+  ): Promise<Partial<User>> {
     const user = await this.userService.getUserByUsernameAndPassword(body.username, body.password)
 
     if (!user) {
@@ -34,6 +34,9 @@ export class AuthController {
 
     res.cookie('logged_id', 'yes');
     res.cookie('user_id', user.id);
-    return ""
+    return {
+      id: user.id,
+      username: user.username
+    }
   }
 }

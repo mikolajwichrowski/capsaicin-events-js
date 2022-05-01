@@ -9,8 +9,8 @@ export class ReactionService {
     async createReaction(userId: number, eventId: number, type: string, message?: string, availibilityDate?: string): Promise<ReactionWithUser> {
         return await prisma.reaction.create({
             data: {
-                userId,
-                eventId,
+                user: { connect: { id: userId } },
+                event: { connect: { id: eventId } },
                 type,
                 message,
                 availibilityDate,

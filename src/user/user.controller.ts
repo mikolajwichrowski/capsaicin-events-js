@@ -2,7 +2,7 @@ import { Controller, Get, Param, HttpException, HttpStatus } from '@nestjs/commo
 import { User } from "@prisma/client"
 import { UserService } from './user.service';
 
-@Controller("users")
+@Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) { }
 

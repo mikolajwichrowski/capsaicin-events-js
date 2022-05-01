@@ -17,7 +17,7 @@ export class EventService {
         description,
         picture,
         location,
-        creatorId
+        creator: { connect: { id: creatorId } }
       },
       include: {
         creator: true,

@@ -13,7 +13,7 @@ export class FileService {
     return await prisma.file.create({
       data: {
         fileLocation,
-        eventId
+        event: { connect: { id: eventId } }
       },
     })
   }
