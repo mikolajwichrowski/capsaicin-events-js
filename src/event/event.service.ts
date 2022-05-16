@@ -6,6 +6,14 @@ const prisma = new PrismaClient()
 
 @Injectable()
 export class EventService {
+  async deleteEventById(id: number) {
+    await prisma.event.delete({
+      where: {
+        id
+      }
+    })
+  }
+
   async createEvent(
     description: string,
     picture: string,

@@ -1,4 +1,4 @@
-import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile, Request, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Body, Post, Param, HttpException, HttpStatus, UseInterceptors, UploadedFile, Request, ParseIntPipe, Delete } from '@nestjs/common';
 
 import { EventWithCreator, AttendeeWithUser } from "../../prisma/types";
 import { CreateEventBody, FileResponseObject, ReactionResponseObject, RegisterAttendeeBody } from "src/types";
@@ -20,6 +20,14 @@ export class EventController {
     private readonly fileService: FileService,
     private readonly reactionService: ReactionService
   ) { }
+
+  @Delete(":id")
+  async delete(
+    @Param('id', ParseIntPipe) id: number
+  ): Promise<string> {
+    await this.eventService.deleteEventById(id)
+    return "Deleted"
+  }
 
   @Get("")
   async list(): Promise<EventWithCreator[]> {
